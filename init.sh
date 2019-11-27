@@ -1,11 +1,12 @@
 #!/bin/bash
 
+MARIADB_PORT=${1:-3306}
 DATABASES="startkit \
 startkit_report \
 accesscontrol"
 USER="sa"
 ROOT_PASSWORD="root"
-MYSQL_CONNECT_STRING="mysql -uroot -p$ROOT_PASSWORD"
+MYSQL_CONNECT_STRING="mysql --port=$MARIADB_PORT -uroot -p$ROOT_PASSWORD"
 MYSQL_INIT_SLEEP=10
 MYSQL_INIT_INFO=30 # must be dividably by MYSQL_INIT_SLEEP
 
@@ -40,4 +41,4 @@ for db in $DATABASES; do
     eval "$MYSQL_CONNECT_STRING -e\"CREATE DATABASE IF NOT EXISTS $db\"";
 done
 echo "Listing databases for $USER"
-mysql -u$USER -e"SHOW DATABASES;"
+mysql --port=$MARIADB_PORT --user=$USER -e"SHOW DATABASES;"
