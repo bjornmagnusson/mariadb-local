@@ -20,6 +20,7 @@ elif [ $(docker info --format='{{ .Swarm.LocalNodeState }}') = "active" ]; then
     DOCKER_STACK_IS_USED=true
     DOCKER_STACK_ORCHESTRATOR_DISCOVERED=swarm
 fi
+DOCKER_STACK_IS_USED=false
 
 if [ $DOCKER_STACK_IS_USED = true ]; then
     DOCKER_STACK_NAMESPACE=""

@@ -1,11 +1,25 @@
 #!/bin/bash
 
 MARIADB_PORT=${1:-3306}
-DATABASES="startkit \
+DATABASES="
+startkit \
 startkit_report \
+startkit_poc \
+startkit_poc_report \
 accesscontrol \
-accessexport"
+accessexport \
+befreg \
+hkir \
+report \
+svedem \
+svedem_report \
+abc \
+ff \
+ff_export \
+ff_beslutsstod
+"
 USER="sa"
+USER_RESTRICTED="sa_restricted"
 ROOT_PASSWORD="root"
 MYSQL_CONNECT_STRING="mysql --port=$MARIADB_PORT -uroot -p$ROOT_PASSWORD"
 MYSQL_INIT_SLEEP=10
@@ -34,16 +48,28 @@ if [ $? != 0 ]; then
     echo "Failed to grant privileges to user $USER"
     exit 1
 fi
+echo "Creating user $USER_RESTRICTED"
+eval "$MYSQL_CONNECT_STRING -e\"CREATE USER IF NOT EXISTS $USER_RESTRICTED\"";
+if [ $? != 0 ]; then
+    echo "Failed to create user $USER_RESTRICTED"
+    exit 1
+fi
+echo "Granting privileges to $USER_RESTRICTED for all databases"
+eval "$MYSQL_CONNECT_STRING -e \"GRANT SELECT, EXECUTE, SHOW VIEW, ALTER, ALTER ROUTINE, CREATE, CREATE ROUTINE, CREATE TEMPORARY TABLES, CREATE VIEW, DELETE, DROP, EVENT, INDEX, INSERT, REFERENCES, TRIGGER, UPDATE, LOCK TABLES on *.* to sa_restricted@'%' WITH GRANT OPTION\""
+if [ $? != 0 ]; then
+    echo "Failed to grant privileges to user $USER_RESTRICTED"
+    exit 1
+fi
 eval "$MYSQL_CONNECT_STRING -e\"SELECT user,host FROM mysql.user;\""
 
 mysql --port=$MARIADB_PORT --user=$USER -e"SHOW DATABASES;"
 echo "Creating databases"
 for db in $DATABASES; do
-    mysql --port=$MARIADB_PORT --user=$USER -e"SHOW DATABASES;" | grep $db > /dev/null 2>&1
-    if [ $? != 0 ]; then
+    #mysql --port=$MARIADB_PORT --user=$USER -e"SHOW DATABASES;" | grep $db > /dev/null 2>&1
+    #if [ $? != 0 ]; then
       echo "Creating database $db"
       eval "$MYSQL_CONNECT_STRING -e\"CREATE DATABASE IF NOT EXISTS $db\"";  
-    fi    
+    #fi    
 done
 echo "Listing databases for $USER"
 mysql --port=$MARIADB_PORT --user=$USER -e"SHOW DATABASES;"
