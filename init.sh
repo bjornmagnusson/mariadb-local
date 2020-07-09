@@ -39,24 +39,7 @@ if [ $? != 0 ]; then
     echo "Failed to create user $USER_LIQUIBASE"
     exit 1
 fi
-echo "========== Swedeheart report ==============="
-echo "Creating user shrpt"
-eval "$MYSQL_CONNECT_STRING -e\"CREATE USER IF NOT EXISTS shrpt IDENTIFIED BY 'shrpt'\"";
-if [ $? != 0 ]; then
-    echo "Failed to create user shrpt"
-    exit 1
-fi
-echo "Granting privileges to shrpt for all swedeheart databases"
-eval "$MYSQL_CONNECT_STRING -e \"GRANT SELECT, EXECUTE, SHOW VIEW, ALTER, ALTER ROUTINE, CREATE, CREATE ROUTINE, CREATE TEMPORARY TABLES, CREATE VIEW, DELETE, DROP, EVENT, INDEX, INSERT, REFERENCES, TRIGGER, UPDATE, LOCK TABLES on swedeheartreport.* to shrpt@'%' WITH GRANT OPTION\""
-eval "$MYSQL_CONNECT_STRING -e \"GRANT SELECT, EXECUTE, SHOW VIEW, ALTER, ALTER ROUTINE, CREATE, CREATE ROUTINE, CREATE TEMPORARY TABLES, CREATE VIEW, DELETE, DROP, EVENT, INDEX, INSERT, REFERENCES, TRIGGER, UPDATE, LOCK TABLES on swedeheartreport_report1.* to shrpt@'%' WITH GRANT OPTION\""
-eval "$MYSQL_CONNECT_STRING -e \"GRANT SELECT, EXECUTE, SHOW VIEW, ALTER, ALTER ROUTINE, CREATE, CREATE ROUTINE, CREATE TEMPORARY TABLES, CREATE VIEW, DELETE, DROP, EVENT, INDEX, INSERT, REFERENCES, TRIGGER, UPDATE, LOCK TABLES on swedeheartreport_report2.* to shrpt@'%' WITH GRANT OPTION\""
-eval "$MYSQL_CONNECT_STRING -e \"GRANT SELECT, EXECUTE, SHOW VIEW, ALTER, ALTER ROUTINE, CREATE, CREATE ROUTINE, CREATE TEMPORARY TABLES, CREATE VIEW, DELETE, DROP, EVENT, INDEX, INSERT, REFERENCES, TRIGGER, UPDATE, LOCK TABLES on swedeheartreport_report3.* to shrpt@'%' WITH GRANT OPTION\""
-eval "$MYSQL_CONNECT_STRING -e \"GRANT SELECT, EXECUTE, SHOW VIEW, ALTER, ALTER ROUTINE, CREATE, CREATE ROUTINE, CREATE TEMPORARY TABLES, CREATE VIEW, DELETE, DROP, EVENT, INDEX, INSERT, REFERENCES, TRIGGER, UPDATE, LOCK TABLES on swedeheartreport_report4.* to shrpt@'%' WITH GRANT OPTION\""
-  if [ $? != 0 ]; then
-      echo "Failed to grant privileges to user shrpt"
-      exit 1
-  fi
-echo "==========================================="
+
 echo "Granting privileges to $USER_LIQUIBASE for all databases"
 eval "$MYSQL_CONNECT_STRING -e \"GRANT SELECT, EXECUTE, SHOW VIEW, ALTER, ALTER ROUTINE, CREATE, CREATE ROUTINE, CREATE TEMPORARY TABLES, CREATE VIEW, DELETE, DROP, EVENT, INDEX, INSERT, REFERENCES, TRIGGER, UPDATE, LOCK TABLES on *.* to lbsa@'%' WITH GRANT OPTION\""
 if [ $? != 0 ]; then
@@ -68,11 +51,8 @@ eval "$MYSQL_CONNECT_STRING -e\"SELECT user,host FROM mysql.user;\""
 mysql --port=$MARIADB_PORT --user=$USER -e"SHOW DATABASES;"
 echo "Creating databases"
 for db in $DATABASES; do
-    #mysql --port=$MARIADB_PORT --user=$USER -e"SHOW DATABASES;" | grep $db > /dev/null 2>&1
-    #if [ $? != 0 ]; then
-      echo "Creating database $db"
-      eval "$MYSQL_CONNECT_STRING -e\"CREATE DATABASE IF NOT EXISTS $db\"";  
-    #fi    
+    echo "Creating database $db"
+    eval "$MYSQL_CONNECT_STRING -e\"CREATE DATABASE IF NOT EXISTS $db\"";
 done
 echo "Listing databases for $USER"
 mysql --port=$MARIADB_PORT --user=$USER -e"SHOW DATABASES;"
