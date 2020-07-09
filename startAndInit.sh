@@ -6,7 +6,8 @@ MARIADB_VERSION=10.1
 MARIADB_PORT=3306
 
 readonly script="startAndInit.sh"
-readonly required_software="helm yq"
+readonly required_software="docker-compose yq"
+readonly databases_file="databases.yaml"
 while test $# -gt 0; do
   case "$1" in
     -h|--help)
@@ -96,7 +97,11 @@ else
     docker-compose --project-name $MARIADB_DEPLOYMENT_NAME ps
 fi
 
-DATABASES_YAML=$(yq read databases.yaml)
+DATABASES_YAML=$(yq read $databases_file)
+if [[ $? != 0 ]]; then
+  echo "Failed to find $databases_file"
+  exit 1
+fi
 for DATABASE in $(echo $DATABASES_YAML | yq r - 'databases'); do 
     DATABASES="$DATABASES $DATABASE" 
 done
