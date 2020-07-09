@@ -1,5 +1,8 @@
 # MariaDB initialization
-Starts a MariaDB instance and initializes databases and default users (sa and lbsa)
+Starts a MariaDB instance and initializes databases
+Default user created
+* sa, for regular use
+* lbsa, for liquibase use
 
 ## Preparation
 Create a ``database.yaml`` with database names to be created
@@ -15,4 +18,4 @@ Starts MariaDB server and initializes databases
 
 ```
 ./startAndInit.sh
-```  
+```
