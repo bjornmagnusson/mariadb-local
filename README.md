@@ -1,12 +1,18 @@
-MariaDB initialization
-======================
+# MariaDB initialization
+Starts a MariaDB instance and initializes databases and default users (sa and lbsa)
 
-Step-by-step
-* docker stack deploy --compose-file docker-compose.yml mariadb
-* ./init.sh
+## Preparation
+Create a ``database.yaml`` with database names to be created
+```
+databases:
+    database1
+    database2
+    database3
+```
 
-All-in-one run (using Docker Stack)
-* ./startAndInit.sh
+## Initialize databases
+Starts MariaDB server and initializes databases
 
-All-in-one run (using Docker Compose)
-* ./startAndInit.sh false
+```
+./startAndInit.sh
+```  

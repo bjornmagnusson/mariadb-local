@@ -1,41 +1,10 @@
 #!/bin/bash
 
 MARIADB_PORT=${1:-3306}
-DATABASES="
-startkit_dev \
-startkit_dev_report \
-startkit \
-startkit_report \
-startkit_report_only \
-startkit_poc \
-startkit_poc_report \
-accesscontrol \
-accessexport \
-accesscontrol_dev \
-accessexport_dev \
-vardenisiffror \
-befreg \
-hkir \
-report \
-svedem \
-svedem_report \
-svedem2 \
-svedem2_report \
-abc \
-ff \
-ff_export \
-ff_beslutsstod \
-kablreport \
-kablreport_report \
-swedeheartreport_report1 \
-swedeheartreport_report2 \
-swedeheartreport_report3 \
-swedeheartreport_report4 \
-swedeheartreport
-"
+DATABASES=${2:-""}
 USER="sa"
-USER_RESTRICTED="sa_restricted"
-USER_RESTRICTED_PASSWORD="sa_restricted_password"
+USER_LIQUIBASE="lbsa"
+USER_LIQUIBASE_PASSWORD="lbsa_password"
 ROOT_PASSWORD="root"
 MYSQL_CONNECT_STRING="mysql --port=$MARIADB_PORT -uroot -p$ROOT_PASSWORD"
 MYSQL_INIT_SLEEP=10
@@ -64,10 +33,10 @@ if [ $? != 0 ]; then
     echo "Failed to grant privileges to user $USER"
     exit 1
 fi
-echo "Creating user $USER_RESTRICTED"
-eval "$MYSQL_CONNECT_STRING -e\"CREATE USER IF NOT EXISTS $USER_RESTRICTED IDENTIFIED BY '$USER_RESTRICTED_PASSWORD'\"";
+echo "Creating user $USER_LIQUIBASE"
+eval "$MYSQL_CONNECT_STRING -e\"CREATE USER IF NOT EXISTS $USER_LIQUIBASE IDENTIFIED BY '$USER_LIQUIBASE_PASSWORD'\"";
 if [ $? != 0 ]; then
-    echo "Failed to create user $USER_RESTRICTED"
+    echo "Failed to create user $USER_LIQUIBASE"
     exit 1
 fi
 echo "========== Swedeheart report ==============="
@@ -88,10 +57,10 @@ eval "$MYSQL_CONNECT_STRING -e \"GRANT SELECT, EXECUTE, SHOW VIEW, ALTER, ALTER 
       exit 1
   fi
 echo "==========================================="
-echo "Granting privileges to $USER_RESTRICTED for all databases"
-eval "$MYSQL_CONNECT_STRING -e \"GRANT SELECT, EXECUTE, SHOW VIEW, ALTER, ALTER ROUTINE, CREATE, CREATE ROUTINE, CREATE TEMPORARY TABLES, CREATE VIEW, DELETE, DROP, EVENT, INDEX, INSERT, REFERENCES, TRIGGER, UPDATE, LOCK TABLES on *.* to sa_restricted@'%' WITH GRANT OPTION\""
+echo "Granting privileges to $USER_LIQUIBASE for all databases"
+eval "$MYSQL_CONNECT_STRING -e \"GRANT SELECT, EXECUTE, SHOW VIEW, ALTER, ALTER ROUTINE, CREATE, CREATE ROUTINE, CREATE TEMPORARY TABLES, CREATE VIEW, DELETE, DROP, EVENT, INDEX, INSERT, REFERENCES, TRIGGER, UPDATE, LOCK TABLES on *.* to lbsa@'%' WITH GRANT OPTION\""
 if [ $? != 0 ]; then
-    echo "Failed to grant privileges to user $USER_RESTRICTED"
+    echo "Failed to grant privileges to user $USER_LIQUIBASE"
     exit 1
 fi
 eval "$MYSQL_CONNECT_STRING -e\"SELECT user,host FROM mysql.user;\""
