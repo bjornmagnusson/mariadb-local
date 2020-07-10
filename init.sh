@@ -3,8 +3,9 @@
 MARIADB_PORT=${1:-3306}
 DATABASES=${2:-""}
 USER="sa"
+USER_RESTRICTED="sa_restricted"
+USER_RESTRICTED_PASSWORD="sa_restricted_password"
 USER_LIQUIBASE="lbsa"
-USER_LIQUIBASE_PASSWORD="lbsa_password"
 ROOT_PASSWORD="root"
 MYSQL_CONNECT_STRING="mysql --port=$MARIADB_PORT -uroot -p$ROOT_PASSWORD"
 MYSQL_INIT_SLEEP=10
@@ -33,8 +34,19 @@ if [ $? != 0 ]; then
     echo "Failed to grant privileges to user $USER"
     exit 1
 fi
+
+echo "Creating user $USER_RESTRICTED"
+eval "$MYSQL_CONNECT_STRING -e\"CREATE USER IF NOT EXISTS $USER_RESTRICTED IDENTIFIED BY '$USER_RESTRICTED_PASSWORD'\"";
+if [ $? != 0 ]; then
+    echo "Failed to create user $USER_RESTRICTED"
+    exit 1
+fi
+echo "Granting privileges to $USER_RESTRICTED for all databases"
+eval "$MYSQL_CONNECT_STRING -e\"GRANT SELECT, EXECUTE, SHOW VIEW, CREATE TEMPORARY TABLES, DELETE, DROP, EVENT, INDEX,
+INSERT, REFERENCES, TRIGGER, UPDATE, LOCK TABLES on *.* to sa_restricted@'%' WITH GRANT OPTION\""
+
 echo "Creating user $USER_LIQUIBASE"
-eval "$MYSQL_CONNECT_STRING -e\"CREATE USER IF NOT EXISTS $USER_LIQUIBASE IDENTIFIED BY '$USER_LIQUIBASE_PASSWORD'\"";
+eval "$MYSQL_CONNECT_STRING -e\"CREATE USER IF NOT EXISTS $USER_LIQUIBASE\"";
 if [ $? != 0 ]; then
     echo "Failed to create user $USER_LIQUIBASE"
     exit 1
